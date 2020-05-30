@@ -21,6 +21,10 @@ class LoginController extends Controller
     {
         $credentials = request(['email', 'password']);
 
+        // добавить - если токен уже есть,
+        // то возвращать его,
+        // чтоб не разлогинивало на других устройствах
+
         if (! $token = auth()->attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }

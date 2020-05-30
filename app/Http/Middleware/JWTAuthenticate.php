@@ -23,10 +23,11 @@ class JWTAuthenticate extends Authenticate
 //        try{
 //            $user = auth()->userOrFail();
 //        } catch(\Tymon\JWTAuth\Exceptions\UserNotDefinedException $e){
-//            return response()->json(['error' =>  $e->getMessage()]);
+//            return response()->json(['error' =>  $e->getMessage()], 401);
 //        }
 
-        $user = auth()->userOrFail();
+//        $user = auth()->userOrFail();
+        $user = auth()->user();
         if(!$user){
             abort(401, 'No user');
         }

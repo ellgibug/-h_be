@@ -27,6 +27,7 @@ Route::group(['middleware' => ['cors']], function () {
 
 Route::group(['middleware' => ['jwt.authenticate', 'cors']], function () {
     Route::get('/projects', 'Api\ProjectsController@getAllProjects');
+    Route::get('/project/{id}', 'Api\ProjectsController@project');
     Route::get('/pages', 'Api\PagesController@getAllPages');
 });
 
