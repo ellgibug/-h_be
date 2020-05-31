@@ -15,4 +15,9 @@ class Project extends Model
     {
         return $this->hasMany(Page::class);
     }
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
+    }
 }
