@@ -22,12 +22,14 @@ Morbi vitae posuere metus, vel posuere libero. Nulla eget porttitor odio. Nulla 
         $this->pages = collect([
             [
                 'project_id' => '1',
+                'user_id' => '3',
                 'title' => 'Lorem inpsum',
                 'body' => $body,
                 'is_published' => true,
             ],
             [
                 'project_id' => '1',
+                'user_id' => '3',
                 'title' => 'Съешь ещё этих мягких французских булок, да выпей чаю',
                 'body' => $body,
                 'is_published' => true,
@@ -54,6 +56,7 @@ Morbi vitae posuere metus, vel posuere libero. Nulla eget porttitor odio. Nulla 
                 'url' => Transliterate::make($page['title'], ['type' => 'url', 'lowercase' => true]),
                 'is_published' => $page['is_published'],
                 'project_id' => $page['project_id'],
+                'user_id' => $page['user_id'],
                 'body' => $page['body'],
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),

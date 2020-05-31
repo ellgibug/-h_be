@@ -18,6 +18,7 @@ class CreatePagesTable extends Migration
             $table->bigIncrements('id')->unique();
             $table->string('code')->unique();
             $table->bigInteger('project_id')->unsigned()->index();
+            $table->bigInteger('user_id')->unsigned()->index();
             $table->string('title');
             $table->string('url');
             $table->boolean('is_published');
@@ -26,6 +27,10 @@ class CreatePagesTable extends Migration
 
             $table->foreign('project_id')
                 ->references('id')->on('projects')
+                ->onDelete('cascade');
+
+            $table->foreign('user_id')
+                ->references('id')->on('users')
                 ->onDelete('cascade');
         });
     }
