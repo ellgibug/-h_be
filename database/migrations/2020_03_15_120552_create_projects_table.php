@@ -16,7 +16,9 @@ class CreateProjectsTable extends Migration
         Schema::create('projects', function (Blueprint $table) {
             $table->engine = "InnoDB";
             $table->bigIncrements('id')->unique();
+            $table->string('code')->unique();
             $table->bigInteger('user_id')->unsigned()->index();
+            $table->bigInteger('organization_id')->unsigned()->index();
             $table->string('title');
             $table->string('url');
             $table->boolean('is_demo');
@@ -25,6 +27,9 @@ class CreateProjectsTable extends Migration
 
             $table->foreign('user_id')
                 ->references('id')->on('users')
+                ->onDelete('cascade');
+            $table->foreign('organization_id')
+                ->references('id')->on('organizations')
                 ->onDelete('cascade');
         });
     }

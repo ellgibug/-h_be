@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePagesTable extends Migration
+class CreateRolesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,20 +13,12 @@ class CreatePagesTable extends Migration
      */
     public function up()
     {
-        Schema::create('pages', function (Blueprint $table) {
+        Schema::create('roles', function (Blueprint $table) {
             $table->engine = "InnoDB";
             $table->bigIncrements('id')->unique();
-            $table->string('code')->unique();
-            $table->bigInteger('project_id')->unsigned()->index();
+            $table->string('value')->unique();
             $table->string('title');
-            $table->string('url');
-            $table->boolean('is_published');
-            $table->longText('body');
             $table->timestamps();
-
-            $table->foreign('project_id')
-                ->references('id')->on('projects')
-                ->onDelete('cascade');
         });
     }
 
@@ -37,6 +29,6 @@ class CreatePagesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('pages');
+        Schema::dropIfExists('roles');
     }
 }

@@ -14,8 +14,7 @@ class ProjectsController extends Controller
         $project = Project::findOrFail($id)
             ->with('user')
             ->with('pages')
-            ->get()
-            ->toArray();
+            ->get();
 
         $headers = [ 'Content-Type' => 'application/json; charset=utf-8' ];
 
