@@ -2,39 +2,106 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Organization;
 use Illuminate\Http\Request;
+use App\Http\Requests\RegistrationFormRequest;
 use App\Http\Controllers\Controller;
+use App\User;
+use Illuminate\Support\Facades\DB;
+use App\Role;
 
 class LoginController extends Controller
 {
+
+    public $loginAfterSignUp = true;
+
+
     public function __construct()
     {
-        $this->middleware('jwt.authenticate', ['except' => ['login']]);
+        $this->middleware('jwt.authenticate', ['except' => ['login', 'register']]);
+    }
+
+    public function register(RegistrationFormRequest $request)
+    {
+
+        DB::beginTransaction();
+        try {
+
+            $isUserWithOrganization = $request->role === User::REQUEST_USER_TYPE_WITH_ORGANIZATION;
+
+            $userOrganizationId = $request->organization_id;
+
+            if(!$isUserWithOrganization) {
+
+                $organization = new Organization();
+                $organization->code = $organization->generateCode();
+                $organization->title = $organization->generateTitle($organization->code);
+                $organization->save();
+
+                $userOrganizationId = $organization->id;
+            }
+
+            if($isUserWithOrganization) {
+                $role = Role::where('value', Role::USER)->first();
+            } else {
+                $role = Role::where('value', Role::ADMIN)->first();
+            }
+
+            $user = new User();
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->code = $user->generateCode();
+            $user->organization_id = $userOrganizationId;
+            $user->role_id = $role->id;
+            $user->password = bcrypt($request->password);
+            $user->save();
+
+            if(!$isUserWithOrganization && $organization->save() && $user->save()){
+                DB::commit();
+            } elseif ($user->save()){
+                DB::commit();
+            } else {
+                DB::rollBack();
+            }
+        } catch(Exception $e){
+            DB::rollBack();
+        }
+
+
+        if ($this->loginAfterSignUp) {
+            return $this->login($request);
+        }
+
+        return response()->json([
+            'user' => $user,
+            'token' => auth()->attempt($request->only('email', 'password'))
+        ], 200);
     }
 
     /**
      * Get a JWT via given credentials.
      *
+     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login()
+    public function login(Request $request)
     {
-        $credentials = request(['email', 'password']);
+        $credentials = $request->only('email', 'password');
 
         // добавить - если токен уже есть,
         // то возвращать его,
         // чтоб не разлогинивало на других устройствах
 
-        if (! $token = auth()->attempt($credentials)) {
+        if (!$token = auth()->attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
         return response()->json([
             'user' => auth()->user(),
             'token' => $token
-            ]);
+        ], 200);
 
-//        return $this->respondWithToken($token);
+        // return $this->respondWithToken($token);
     }
 
     /**
@@ -56,7 +123,7 @@ class LoginController extends Controller
     {
         auth()->logout();
 
-        return response()->json(['message' => 'Successfully logged out']);
+        return response()->json(['message' => 'Successfully logged out'], 200);
     }
 
     /**
@@ -72,7 +139,7 @@ class LoginController extends Controller
     /**
      * Get the token array structure.
      *
-     * @param  string $token
+     * @param string $token
      *
      * @return \Illuminate\Http\JsonResponse
      */

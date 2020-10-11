@@ -19,6 +19,8 @@ use Illuminate\Http\Request;
 
 Route::group(['middleware' => ['cors']], function () {
 
+    Route::post('register', 'Api\LoginController@register')->name('register_jwt');
+
     Route::post('logout', 'Api\LoginController@logout')->name('logout_jwt');
     Route::post('login', 'Api\LoginController@login')->name('login_jwt');
     Route::post('refresh', 'Api\LoginController@refresh')->name('refresh_jwt');

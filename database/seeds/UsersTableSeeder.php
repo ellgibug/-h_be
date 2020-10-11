@@ -18,6 +18,7 @@ class UsersTableSeeder extends Seeder
                 'password' => 'password',
                 'organization_id' => '1',
                 'role_id' => '1',
+                'is_confirmed_in_organization' => true
             ],
             [
                 'name' => 'John Doe',
@@ -25,6 +26,7 @@ class UsersTableSeeder extends Seeder
                 'password' => 'password',
                 'organization_id' => '1',
                 'role_id' => '2',
+                'is_confirmed_in_organization' => true
             ],
             [
                 'name' => 'Simple User',
@@ -32,6 +34,7 @@ class UsersTableSeeder extends Seeder
                 'password' => 'password',
                 'organization_id' => '1',
                 'role_id' => '3',
+                'is_confirmed_in_organization' => false
             ]
         ]);
     }

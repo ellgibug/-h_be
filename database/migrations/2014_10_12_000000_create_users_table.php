@@ -24,6 +24,7 @@ class CreateUsersTable extends Migration
             $table->rememberToken();
             $table->bigInteger('organization_id')->nullable()->unsigned()->index();
             $table->bigInteger('role_id')->unsigned()->index();
+            $table->boolean('is_confirmed_in_organization')->default(false);
             $table->timestamps();
 
             $table->foreign('organization_id')

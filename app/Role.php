@@ -10,6 +10,8 @@ class Role extends Model
     const ADMIN = 'admin';
     const USER = 'user';
 
+
+
     public function user()
     {
         return $this->hasOne(User::class);

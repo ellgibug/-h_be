@@ -6,10 +6,17 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use helpers\generateRandomString;
 
 class User extends Authenticatable implements JWTSubject
 {
     use Notifiable;
+
+    const REQUEST_USER_TYPE_WITH_ORGANIZATION = 'user_with_organization';
+    const REQUEST_USER_TYPE_WITHOUT_ORGANIZATION = 'user_without_organization';
+
+    const IS_CONFIRMED_IN_ORGANIZATION = 'is_confirmed_in_organization';
+    const IS_NOT_CONFIRMED_IN_ORGANIZATION = 'is_not_confirmed_in_organization';
 
 
     /**
@@ -38,7 +45,12 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name',
+        'email',
+        'password',
+        'role_id',
+        'organization_id',
+        'code'
     ];
 
     /**
@@ -47,7 +59,8 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password',
+        'remember_token',
     ];
 
     /**
@@ -78,4 +91,12 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsTo(Organization::class);
     }
+
+    public function generateCode(){
+        $s = new generateRandomString();
+
+        return $s->generateRandomString(4) . '-' . mt_rand(100000,999999);
+    }
+
+
 }
