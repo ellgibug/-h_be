@@ -37,7 +37,7 @@ class RegistrationFormRequest extends FormRequest
             'password_confirmation' => 'required|string|min:6|max:10',
 
             'role' => ['required',  Rule::in([User::REQUEST_USER_TYPE_WITH_ORGANIZATION, User::REQUEST_USER_TYPE_WITHOUT_ORGANIZATION])],
-            'organization_id' => [Rule::requiredIf('role' === User::REQUEST_USER_TYPE_WITH_ORGANIZATION)]
+            'organization_code' => [Rule::requiredIf('role' === User::REQUEST_USER_TYPE_WITH_ORGANIZATION)]
         ];
     }
 }

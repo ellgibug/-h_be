@@ -29,9 +29,9 @@ class LoginController extends Controller
 
             $isUserWithOrganization = $request->role === User::REQUEST_USER_TYPE_WITH_ORGANIZATION;
 
-            $userOrganizationId = $request->organization_id;
+            $userOrganizationCode = $request->organization_code;
 
-            if(!$isUserWithOrganization) {
+            if (!$isUserWithOrganization) {
 
                 $organization = new Organization();
                 $organization->code = $organization->generateCode();
@@ -39,9 +39,14 @@ class LoginController extends Controller
                 $organization->save();
 
                 $userOrganizationId = $organization->id;
+            } else {
+
+                $organization = Organization::where('code', $userOrganizationCode)->first();
+
+                $userOrganizationId = $organization->id;
             }
 
-            if($isUserWithOrganization) {
+            if ($isUserWithOrganization) {
                 $role = Role::where('value', Role::USER)->first();
             } else {
                 $role = Role::where('value', Role::ADMIN)->first();
@@ -56,14 +61,14 @@ class LoginController extends Controller
             $user->password = bcrypt($request->password);
             $user->save();
 
-            if(!$isUserWithOrganization && $organization->save() && $user->save()){
+            if (!$isUserWithOrganization && $organization->save() && $user->save()) {
                 DB::commit();
-            } elseif ($user->save()){
+            } elseif ($user->save()) {
                 DB::commit();
             } else {
                 DB::rollBack();
             }
-        } catch(Exception $e){
+        } catch (Exception $e) {
             DB::rollBack();
         }
 
