@@ -50,7 +50,8 @@ class User extends Authenticatable implements JWTSubject
         'password',
         'role_id',
         'organization_id',
-        'code'
+        'code',
+        'is_confirmed_in_organization'
     ];
 
     /**
@@ -98,5 +99,7 @@ class User extends Authenticatable implements JWTSubject
         return $s->generateRandomString(4) . '-' . mt_rand(100000,999999);
     }
 
-
+    public function generateVerificationCode(){
+        return mt_rand(100000,999999);
+    }
 }

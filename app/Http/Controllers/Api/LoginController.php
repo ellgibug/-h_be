@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Mail\EmailVerification;
 use App\Organization;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Requests\RegistrationFormRequest;
 use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Support\Facades\DB;
 use App\Role;
+use Illuminate\Support\Facades\Mail;
+
 
 class LoginController extends Controller
 {
@@ -58,20 +62,24 @@ class LoginController extends Controller
             $user->code = $user->generateCode();
             $user->organization_id = $userOrganizationId;
             $user->role_id = $role->id;
+            $user->is_confirmed_in_organization = !(bool)$isUserWithOrganization;
             $user->password = bcrypt($request->password);
+            $user->email_verification_code = $user->generateVerificationCode();
+            $user->email_verification_code_expired_at = Carbon::now()->addHours(2);
             $user->save();
 
             if (!$isUserWithOrganization && $organization->save() && $user->save()) {
                 DB::commit();
+                Mail::to($user->email)->send(new EmailVerification($user));
             } elseif ($user->save()) {
                 DB::commit();
+                Mail::to($user->email)->send(new EmailVerification($user));
             } else {
                 DB::rollBack();
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             DB::rollBack();
         }
-
 
         if ($this->loginAfterSignUp) {
             return $this->login($request);

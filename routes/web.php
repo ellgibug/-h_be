@@ -12,5 +12,10 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+
+    $user = \App\User::find(2);
+
+    return (new App\Mail\EmailVerification($user))->render();
+
+//    return view('welcome');
 });
