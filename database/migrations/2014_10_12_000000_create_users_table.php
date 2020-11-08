@@ -23,6 +23,9 @@ class CreateUsersTable extends Migration
             $table->string('email_verification_code')->nullable();
             $table->timestamp('email_verification_code_expired_at')->nullable();
             $table->string('password');
+            $table->string('password_reset_code')->nullable();
+            $table->string('password_reset_token')->nullable();
+            $table->timestamp('password_reset_code_expired_at')->nullable();
             $table->rememberToken();
             $table->bigInteger('organization_id')->nullable()->unsigned()->index();
             $table->bigInteger('role_id')->unsigned()->index();

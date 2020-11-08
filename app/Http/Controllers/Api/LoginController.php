@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\RestorePasswordRequest;
 use App\Mail\EmailVerification;
+use App\Mail\PasswordReset;
+use App\Mail\PasswordUpdated;
 use App\Organization;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -22,7 +25,9 @@ class LoginController extends Controller
 
     public function __construct()
     {
-        $this->middleware('jwt.authenticate', ['except' => ['login', 'register']]);
+        $this->middleware('jwt.authenticate', ['except' => [
+            'login', 'register', 'forgotPassword', 'restorePassword'
+        ]]);
     }
 
     public function register(RegistrationFormRequest $request)
@@ -59,12 +64,12 @@ class LoginController extends Controller
             $user = new User();
             $user->name = $request->name;
             $user->email = $request->email;
-            $user->code = $user->generateCode();
+            $user->code = User::generateCode();
             $user->organization_id = $userOrganizationId;
             $user->role_id = $role->id;
             $user->is_confirmed_in_organization = !(bool)$isUserWithOrganization;
             $user->password = bcrypt($request->password);
-            $user->email_verification_code = $user->generateVerificationCode();
+            $user->email_verification_code = User::generateVerificationCode();
             $user->email_verification_code_expired_at = Carbon::now()->addHours(2);
             $user->save();
 
@@ -79,6 +84,10 @@ class LoginController extends Controller
             }
         } catch (\Exception $e) {
             DB::rollBack();
+
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
         }
 
         if ($this->loginAfterSignUp) {
@@ -163,5 +172,95 @@ class LoginController extends Controller
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60
         ]);
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        // нахожу пользователя по коду
+        // отправляю ему на емейл письмо с ссылкой на восстановление пароля
+        // генерирую код для восстановления, токен и срок жизни
+
+        // стоит вынести в отдельную таблицу (возможно!) - и про подтверждение емейла
+        // разлогинить юзера
+
+        $this->validate($request, [
+            'email' => 'required|string|exists:users'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if(!$user){
+            return response()->json([
+                'error' => 'No user found'
+            ], 500);
+        }
+
+        if(auth()->user()){
+            auth()->logout();
+        }
+
+        // проверка на большое количество попыток восстановления пароля
+
+        $user->password_reset_code = User::generateRestorePasswordCode();
+        $user->password_reset_token = User::generateRestorePasswordToken();
+        $user->password_reset_code_expired_at = Carbon::now()->addHours(2);
+
+        $user->save();
+
+        Mail::to($user->email)->send(new PasswordReset($user));
+
+        if (Mail::failures()) {
+            return response()->json([
+                'error' => 'Email was not sent'
+            ], 500);
+        }
+
+        return response()->json([
+            'message' => 'Email was successfully sent',
+        ], 200);
+
+    }
+
+    public function restorePassword(RestorePasswordRequest $request)
+    {
+        $user = User::where('code', $request->code)->first();
+
+        if(!$user){
+            return response()->json([
+                'error' => 'No user found'
+            ], 500);
+        }
+
+        if($user->password_reset_code !== $request->password_reset_code){
+            return response()->json([
+                'error' => 'Password reset code is not correct'
+            ], 500);
+        }
+
+        if($user->password_reset_token !== $request->password_reset_token){
+            return response()->json([
+                'error' => 'Password reset token is not correct'
+            ], 500);
+        }
+
+        if($user->password_reset_code_expired_at > Carbon::now()->toDateTime()){
+            return response()->json([
+                'error' => 'Password reset is expired'
+            ], 500);
+        }
+
+        $user->password = bcrypt($request->password);
+
+        $user->password_reset_code = NULL;
+        $user->password_reset_token = NULL;
+        $user->password_reset_code_expired_at = NULL;
+
+        $user->save();
+
+        Mail::to($user->email)->send(new PasswordUpdated($user));
+
+        return response()->json([
+            'message' => 'Password was successfully changed',
+        ], 200);
     }
 }

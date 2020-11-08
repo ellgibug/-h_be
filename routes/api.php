@@ -25,6 +25,10 @@ Route::group(['middleware' => ['cors']], function () {
     Route::post('login', 'Api\LoginController@login')->name('login_jwt');
     Route::post('refresh', 'Api\LoginController@refresh')->name('refresh_jwt');
     Route::get('me', 'Api\LoginController@me')->name('me_jwt');
+
+    Route::post('forgot-password', 'Api\LoginController@forgotPassword')->middleware('throttle:10,1')->name('forgot_password');
+    Route::post('restore-password', 'Api\LoginController@restorePassword')->name('restore_password');
+
 });
 
 Route::group(['middleware' => ['jwt.authenticate', 'cors']], function () {

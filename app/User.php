@@ -39,6 +39,8 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
+    // добавить все данные, какие можно показывать, какие нельзя
+
     /**
      * The attributes that are mass assignable.
      *
@@ -51,7 +53,10 @@ class User extends Authenticatable implements JWTSubject
         'role_id',
         'organization_id',
         'code',
-        'is_confirmed_in_organization'
+        'is_confirmed_in_organization',
+        'password_reset_code',
+        'password_reset_token',
+        'password_reset_code_expired_at'
     ];
 
     /**
@@ -93,13 +98,23 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsTo(Organization::class);
     }
 
-    public function generateCode(){
+    public static function generateCode(){
         $s = new generateRandomString();
 
         return $s->generateRandomString(4) . '-' . mt_rand(100000,999999);
     }
 
-    public function generateVerificationCode(){
+    public static function generateVerificationCode(){
         return mt_rand(100000,999999);
+    }
+
+    public static function generateRestorePasswordCode(){
+        return mt_rand(1000,9999);
+    }
+
+    public static function generateRestorePasswordToken(){
+        $s = new generateRandomString();
+
+        return $s->generateRandomString(10);
     }
 }
