@@ -35,15 +35,21 @@ Route::group(['middleware' => ['cors']], function () {
 
 
     // organizations
-    Route::get('organization/users/{code}', 'Api\OrganizationsController@getAllUsers')->name('organization_get_users');
+    Route::get('organization/users/{code}', 'Api\OrganizationsController@getAllUsersByCode')->name('organization_get_users');
 
+
+    // projects
+    Route::get('projects', 'Api\ProjectsController@getAllProjectsByCode')->name('get_projects');
 
 });
 
 Route::group(['middleware' => ['jwt.authenticate', 'cors']], function () {
-    Route::get('/projects', 'Api\ProjectsController@getAllProjects');
-    Route::get('/project/{id}', 'Api\ProjectsController@project');
-    Route::get('/pages', 'Api\PagesController@getAllPages');
+//    Route::get('/projects', 'Api\ProjectsController@getAllProjects');
+//    Route::get('/project/{id}', 'Api\ProjectsController@project');
+//    Route::get('/pages', 'Api\PagesController@getAllPages');
+
+
+
 });
 
 

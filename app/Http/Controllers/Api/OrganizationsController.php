@@ -13,7 +13,7 @@ class OrganizationsController extends Controller
         $this->middleware('jwt.authenticate');
     }
 
-    public function getAllUsers($code, Request $request)
+    public function getAllUsersByCode($code, Request $request)
     {
         $organization = Organization::where('code', $code)->first();
 
