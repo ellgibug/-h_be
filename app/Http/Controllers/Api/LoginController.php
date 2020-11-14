@@ -20,6 +20,13 @@ use Illuminate\Support\Facades\Mail;
 class LoginController extends Controller
 {
 
+    // TODO: разбить на разные контроллеры
+    // TODO: вынести пароли в отдельную таблицу
+    // TODO: записывать логи
+    // TODO: добавить больше проверок на ошибки
+    // TODO: все валидации отдельно
+    // TODO: письма нормально
+
     public $loginAfterSignUp = true;
 
 
@@ -118,8 +125,26 @@ class LoginController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
+        $user = User::find(auth()->user()->id);
+
+        if($user->password_reset_code){
+            $user->password_reset_code = NULL;
+        }
+
+        if($user->password_reset_token){
+            $user->password_reset_token = NULL;
+        }
+
+        if($user->password_reset_code_expired_at){
+            $user->password_reset_code_expired_at = NULL;
+        }
+
+        $user->save();
+
         return response()->json([
-            'user' => auth()->user(),
+            'user' => $user,
+            'role' => $user->role,
+            'organization' => $user->organization,
             'token' => $token
         ], 200);
 
@@ -262,5 +287,75 @@ class LoginController extends Controller
         return response()->json([
             'message' => 'Password was successfully changed',
         ], 200);
+    }
+
+    public function sendVerificationEmail(Request $request)
+    {
+        $this->validate($request, [
+            'code' => 'required|string|exists:users'
+        ]);
+
+        $user = User::where('code', $request->code)->first();
+
+        if(!$user){
+            return response()->json([
+                'error' => 'No user found'
+            ], 500);
+        }
+
+        $user->email_verification_code = User::generateVerificationCode();
+        $user->email_verification_code_expired_at = Carbon::now()->addHours(2);
+        $user->save();
+
+        Mail::to($user->email)->send(new EmailVerification($user));
+
+        if (Mail::failures()) {
+            return response()->json([
+                'error' => 'Email was not sent'
+            ], 500);
+        }
+
+        return response()->json([
+            'message' => 'Email was successfully sent',
+            'user' => $user
+        ], 200);
+
+    }
+
+    public function verifyEmail(Request $request)
+    {
+        $this->validate($request, [
+            'email_verification_code' => 'required|string|exists:users',
+            'code' => 'required|string|exists:users',
+        ]);
+
+        $user = User::where('code', $request->code)->first();
+
+        if(!$user){
+            return response()->json([
+                'error' => 'No user found'
+            ], 500);
+        }
+
+        if($user->email_verification_code !== $request->email_verification_code){
+            return response()->json([
+                'error' => 'Email verification code is not correct'
+            ], 500);
+        }
+
+        if($user->email_verification_code_expired_at > Carbon::now()->toDateTime()){
+            return response()->json([
+                'error' => 'Email verification is expired'
+            ], 500);
+        }
+
+        $user->is_email_verified = true;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Email was successfully verified',
+            'user' => $user
+        ], 200);
+
     }
 }

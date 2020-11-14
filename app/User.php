@@ -39,7 +39,7 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
-    // добавить все данные, какие можно показывать, какие нельзя
+    // TODO: добавить все данные, какие можно показывать, какие нельзя
 
     /**
      * The attributes that are mass assignable.
@@ -56,7 +56,8 @@ class User extends Authenticatable implements JWTSubject
         'is_confirmed_in_organization',
         'password_reset_code',
         'password_reset_token',
-        'password_reset_code_expired_at'
+        'password_reset_code_expired_at',
+        'is_email_verified'
     ];
 
     /**
@@ -67,6 +68,8 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password',
         'remember_token',
+        'email_verification_code',
+        'password_reset_code',
     ];
 
     /**
@@ -75,7 +78,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
+        //'email_verified_at' => 'datetime',
     ];
 
     public function projects()
@@ -90,7 +93,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function role()
     {
-        return $this->hasOne(Role::class);
+        return $this->hasOne(Role::class, 'id', 'role_id');
     }
 
     public function organization()

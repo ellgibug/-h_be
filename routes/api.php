@@ -29,6 +29,11 @@ Route::group(['middleware' => ['cors']], function () {
     Route::post('forgot-password', 'Api\LoginController@forgotPassword')->middleware('throttle:10,1')->name('forgot_password');
     Route::post('restore-password', 'Api\LoginController@restorePassword')->name('restore_password');
 
+//    Route::post('send-verification-email', 'Api\LoginController@sendVerificationEmail')->middleware('throttle:10,1')->name('send_verification_email');
+    Route::post('send-verification-email', 'Api\LoginController@sendVerificationEmail')->name('send_verification_email');
+    Route::post('verify-email', 'Api\LoginController@verifyEmail')->name('verify_email');
+
+
 });
 
 Route::group(['middleware' => ['jwt.authenticate', 'cors']], function () {
