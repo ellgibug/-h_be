@@ -101,23 +101,42 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsTo(Organization::class);
     }
 
-    public static function generateCode(){
+    public static function generateCode()
+    {
         $s = new generateRandomString();
 
-        return $s->generateRandomString(4) . '-' . mt_rand(100000,999999);
+        return $s->generateRandomString(4) . '-' . mt_rand(100000, 999999);
     }
 
-    public static function generateVerificationCode(){
-        return mt_rand(100000,999999);
+    public static function generateVerificationCode()
+    {
+        return mt_rand(100000, 999999);
     }
 
-    public static function generateRestorePasswordCode(){
-        return mt_rand(1000,9999);
+    public static function generateRestorePasswordCode()
+    {
+        return mt_rand(1000, 9999);
     }
 
-    public static function generateRestorePasswordToken(){
+    public static function generateRestorePasswordToken()
+    {
         $s = new generateRandomString();
 
         return $s->generateRandomString(10);
+    }
+
+    public function isUserRoot()
+    {
+        return $this->role->value === Role::ROOT;
+    }
+
+    public function isUserAdmin()
+    {
+        return $this->role->value === Role::ADMIN;
+    }
+
+    public function isUserSimpleUser()
+    {
+        return $this->role->value === Role::USER;
     }
 }
