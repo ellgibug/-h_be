@@ -119,4 +119,27 @@ class ProjectsController extends Controller
         }
     }
 
+    public function getProjectByCode(Request $request)
+    {
+        $project = Project::where('code', $request->code)->first();
+
+        if (!$project) {
+            return response()->json([
+                'error' => 'No project found'
+            ], 500);
+        }
+
+        if($project->user_id !== auth()->user()->id){
+            return response()->json([
+                'error' => 'forbidden'
+            ], 500);
+        }
+
+
+        return response()->json([
+            'project' => $project,
+            'pages' => $project->pages,
+        ], 200);
+    }
+
 }
