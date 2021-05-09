@@ -121,7 +121,11 @@ class ProjectsController extends Controller
 
     public function getProjectByCode(Request $request)
     {
-        $project = Project::where('code', $request->code)->first();
+
+        $project = Project::query()
+            ->where('code', $request->code)
+            ->with('user')
+            ->first();
 
         if (!$project) {
             return response()->json([
