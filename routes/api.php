@@ -39,9 +39,14 @@ Route::group(['middleware' => ['cors']], function () {
 
 
     // projects
-    Route::get('projects', 'Api\ProjectsController@getAllProjectsByCode')->name('get_projects');
+    Route::get('projects', 'Api\ProjectsController@getAllUsersProjects')->name('get_projects');
     Route::post('projects/create', 'Api\ProjectsController@create')->name('create_project');
     Route::get('project/{code}', 'Api\ProjectsController@getProjectByCode')->name('get_project_by_code');
+
+
+    // pages
+    Route::get('page/{code}', 'Api\PagesController@getPageByCode')->name('get_pages');
+    Route::patch('page/{code}/edit/body', 'Api\PagesController@editPageBodyByCode')->name('edit_page_body');
 
 });
 

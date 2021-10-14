@@ -42,7 +42,7 @@ class ProjectsController extends Controller
         return response()->json($data, 200, $headers, JSON_UNESCAPED_UNICODE);
     }
 
-    public function getAllProjectsByCode()
+    public function getAllUsersProjects()
     {
         $user = User::find(auth()->user()->id);
 
