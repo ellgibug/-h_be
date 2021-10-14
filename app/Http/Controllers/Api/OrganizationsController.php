@@ -39,7 +39,7 @@ class OrganizationsController extends Controller
         if ($request->get('unconfirmed') === 'y') {
             $users = $organization->unconfirmedUsers()->get();
         } else {
-            $users = $organization->users()->get();
+            $users = $organization->users()->with('role')->get();
         }
 
         return response()->json([

@@ -37,6 +37,9 @@ Route::group(['middleware' => ['cors']], function () {
     // organizations
     Route::get('organization/users/{code}', 'Api\OrganizationsController@getAllUsersByCode')->name('organization_get_users');
 
+    // users
+    Route::get('user/{code}/confirm', 'Api\UsersController@confirmUser')->name('confirm_user');
+
 
     // projects
     Route::get('projects', 'Api\ProjectsController@getAllUsersProjects')->name('get_projects');

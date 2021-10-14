@@ -59,6 +59,10 @@ class LoginController extends Controller
 
                 $organization = Organization::where('code', $userOrganizationCode)->first();
 
+                if(!$organization){
+                    throw new \Exception('No organization with this code');
+                }
+
                 $userOrganizationId = $organization->id;
             }
 
@@ -78,12 +82,12 @@ class LoginController extends Controller
             $user->password = bcrypt($request->password);
             $user->email_verification_code = User::generateVerificationCode();
             $user->email_verification_code_expired_at = Carbon::now()->addHours(2);
-            $user->save();
+            $savedUser = $user->save();
 
             if (!$isUserWithOrganization && $organization->save() && $user->save()) {
                 DB::commit();
                 Mail::to($user->email)->send(new EmailVerification($user));
-            } elseif ($user->save()) {
+            } elseif ($savedUser) {
                 DB::commit();
                 Mail::to($user->email)->send(new EmailVerification($user));
             } else {

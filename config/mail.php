@@ -133,4 +133,21 @@ return [
 
     'log_channel' => env('MAIL_LOG_CHANNEL'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Убирает ошибку
+    |--------------------------------------------------------------------------
+    |
+    | stream_socket_enable_crypto(): SSL operation failed with code 1.
+    | OpenSSL Error messages:\nerror:14090086:SSL routines:ssl3_get_server_certificate:certificate verify failed
+    |
+    */
+    'stream' => [
+        'ssl' => [
+            'allow_self_signed' => true,
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+        ],
+    ],
+
 ];
