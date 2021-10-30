@@ -54,8 +54,18 @@ class ProjectsController extends Controller
 
         // пока возвращаем все, потом добавляем права (если надо)
 
+        $organization = Organization::where('id', $user->organization_id)->first();
+
+        if (!$organization) {
+            return response()->json([
+                'error' => 'No organization found'
+            ], 500);
+        }
+
+        $projects = $organization->projects()->with('user')->get();
+
         return response()->json([
-            'projects' => $user->projects()->get(),
+            'projects' => $projects,
         ], 200);
     }
 
