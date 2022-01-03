@@ -72,16 +72,21 @@ class ProjectsController extends Controller
         }
 
         $stp = $organization->projects();
+        if($request->search){
+            $stp = $stp->where('title', 'like', '%'.$request->search.'%');
+        }
+
+        $total = $stp->count();
 
         $projects = $stp
             ->with('user')
-            ->skip($page - 1)
+            ->skip(($page - 1) * 4)
             ->take(4)
             ->get();
 
         return response()->json([
             'projects' => $projects,
-            'total'=> count($stp->get())
+            'total'=> $total,
         ], 200);
     }
 
