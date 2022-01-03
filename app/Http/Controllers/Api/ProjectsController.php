@@ -42,8 +42,17 @@ class ProjectsController extends Controller
         return response()->json($data, 200, $headers, JSON_UNESCAPED_UNICODE);
     }
 
-    public function getAllUsersProjects()
+    public function getAllUsersProjects(Request $request)
     {
+        $page = $request->page;
+
+        if (!$page) {
+            return response()->json([
+                'error' => 'No page found'
+            ], 500);
+        }
+
+
         $user = User::find(auth()->user()->id);
 
         if (!$user) {
@@ -62,10 +71,17 @@ class ProjectsController extends Controller
             ], 500);
         }
 
-        $projects = $organization->projects()->with('user')->get();
+        $stp = $organization->projects();
+
+        $projects = $stp
+            ->with('user')
+            ->skip($page - 1)
+            ->take(4)
+            ->get();
 
         return response()->json([
             'projects' => $projects,
+            'total'=> count($stp->get())
         ], 200);
     }
 
@@ -143,7 +159,7 @@ class ProjectsController extends Controller
             ], 500);
         }
 
-        if($project->user_id !== auth()->user()->id){
+        if($project->organization_id !== auth()->user()->organization_id){
             return response()->json([
                 'error' => 'forbidden'
             ], 500);
