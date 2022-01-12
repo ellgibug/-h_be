@@ -33,7 +33,6 @@ Route::group(['middleware' => ['cors']], function () {
     Route::post('verify-email', 'Api\LoginController@verifyEmail')->name('verify_email');
 
 
-
     // organizations
     Route::get('organization/users/{code}', 'Api\OrganizationsController@getAllUsersByCode')->name('organization_get_users');
 
@@ -45,6 +44,7 @@ Route::group(['middleware' => ['cors']], function () {
     Route::get('projects', 'Api\ProjectsController@getAllUsersProjects')->name('get_projects');
     Route::post('projects/create', 'Api\ProjectsController@create')->name('create_project');
     Route::get('project/{code}', 'Api\ProjectsController@getProjectByCode')->name('get_project_by_code');
+    Route::post('projects/{code}/add-page', 'Api\ProjectsController@addPage')->name('add_page');
 
 
     // pages
@@ -57,7 +57,6 @@ Route::group(['middleware' => ['jwt.authenticate', 'cors']], function () {
 //    Route::get('/projects', 'Api\ProjectsController@getAllProjects');
 //    Route::get('/project/{id}', 'Api\ProjectsController@project');
 //    Route::get('/pages', 'Api\PagesController@getAllPages');
-
 
 
 });
