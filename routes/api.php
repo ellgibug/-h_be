@@ -51,6 +51,9 @@ Route::group(['middleware' => ['cors']], function () {
     Route::get('page/{code}', 'Api\PagesController@getPageByCode')->name('get_pages');
     Route::patch('page/{code}/edit/body', 'Api\PagesController@editPageBodyByCode')->name('edit_page_body');
 
+    // images with s3
+    Route::post('upload-file', 'Api\ImagesController@upload')->name('upload_image');
+
 });
 
 Route::group(['middleware' => ['jwt.authenticate', 'cors']], function () {
